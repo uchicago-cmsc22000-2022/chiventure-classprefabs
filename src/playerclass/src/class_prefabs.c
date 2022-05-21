@@ -24,10 +24,13 @@ const char* const DEFAULT_CLASS_NAMES[] = {
     "rogue",
     "warrior",
     "wizard"
+    "druid"
+    "elementalist"
+    "knight"
 };
 
 /* Number of predefined default classes (see above). */
-const int DEFAULT_CLASS_COUNT = 6;
+const int DEFAULT_CLASS_COUNT = 9;
 
 /*
  * Determines the index of name in the DEFAULT_CLASS_NAMES array, for use as an
@@ -250,6 +253,56 @@ class_t* class_prefab_new(game_t* game, char* class_name) {
         long_desc = "The Wizard is a master of the arcane; a formidable wielder of magic, "
                     "and an academic whose studies delve into its secrets.";
         set_stats_hashtable(game, &stats, 10, 10, 5, 5, 10, 20, 25, 25);
+    }
+
+
+    /* Druid stats:
+     * 15 Max Health
+     * 5 Speed
+     * 10 Physical Defense
+     * 10 Physical Attack
+     * 10 Ranged Attack
+     * 30 Magic Defense
+     * 30 Magic Attack
+     * 25 Max Mana */
+
+    else if (!strncmp(temp_name, "druid", MAX_NAME_LEN)) {
+        short_desc = "A Druid.";
+        long_desc = "Members of the high-ranking class in ancient Celtic cultures."
+                    "Druids were religious leaders as well as adjudicators, and medical professionals. ";
+        set_stats_hashtable(game, &stats, 15, 5, 10, 10, 10, 30, 30, 25);
+    }
+
+    /* Elementalist stats:
+     * 20 Max Health
+     * 5 Speed
+     * 10 Physical Defense
+     * 10 Physical Attack
+     * 10 Ranged Attack
+     * 20 Magic Defense
+     * 20 Magic Attack
+     * 20 Max Mana */
+
+    else if (!strncmp(temp_name, "elementalist", MAX_NAME_LEN)) {
+        short_desc = "An Elementalist.";
+        long_desc = " Multi faceted spellcasters who channel elemental forces, making fire, air, earth, and water do their bidding.";
+        set_stats_hashtable(game, &stats, 20, 5, 10, 10, 10, 20, 20, 20);
+    }
+
+    /* Knight stats:
+     * 40 Max Health
+     * 20 Speed
+     * 30 Physical Defense
+     * 30 Physical Attack
+     * 10 Ranged Attack
+     * 0 Magic Defense
+     * 0 Magic Attack
+     * 20 Max Mana */
+
+    else if (!strncmp(temp_name, "knight", MAX_NAME_LEN)) {
+        short_desc = "A brave Knight.";
+        long_desc = " Professional cavalry warriors, some of whom were vassals holding lands as fiefs from the lords in whose armies they served";
+        set_stats_hashtable(game, &stats, 40, 20, 30, 30, 10, 0, 0, 20);
     }
 
     else {
@@ -537,7 +590,8 @@ int class_prefab_add_skills(class_t* class) {
         add_skill(class, skill_0, 0, 25, true);
         add_skill(class, skill_1, 1, 50, false, 0);
         add_skill(class, skill_2, 1, 34, false, 1);
-    } /*
+    } 
+    /*
     * A simple linear tree for a ranger class
     *
     * starting skill: close_shot
@@ -549,7 +603,7 @@ int class_prefab_add_skills(class_t* class) {
     */
     else if (!strncmp(temp_name, "ranger", MAX_NAME_LEN)) {
         class_allocate_skills(class, 3, 3, 0);
-       sid_t skill_id = class->skilltree->tid * 100;
+        sid_t skill_id = class->skilltree->tid * 100;
       
        /* Currently point to null effects */
        /* Skills */
@@ -568,7 +622,102 @@ int class_prefab_add_skills(class_t* class) {
        add_skill(class, skill_1, 1, 50, false, 0);
        add_skill(class, skill_2, 1, 34, false, 1);
    }
+   /*
+    * A simple linear tree for a druid class
+    *
+    * starting skill: frostbite
+    *  - active: deals 3 damage.
+    * frostbite -> control_flames
+    *  - active: deals 12 damage.
+    * control_flames -> flame_blade
+    *  - active: deals 25 damage.
+    */
+    else if (!strncmp(temp_name, "druid", MAX_NAME_LEN)) {
+        class_allocate_skills(class, 3, 3, 0);
+        sid_t skill_id = class->skilltree->tid * 100;
+      
+       /* Currently point to null effects */
+       /* Skills */
+       skill_t* skill_0 = skill_new(skill_id++, ACTIVE, "frostbite",
+                                    "weak but cold frostbite", 1, 100,
+                                    NULL);                         
+       skill_t* skill_1 = skill_new(skill_id++, ACTIVE, "control flames",
+                                    "you burned your opponent, stronger effect", 1, 200,
+                                    NULL);
+       skill_t* skill_2 = skill_new(skill_id++, ACTIVE, "flame blade",
+                                    "you sliced your opponent with fire!", 1, 400,      
+                                    NULL);
+ 
+       /* Add skills to tree */
+       add_skill(class, skill_0, 0, 25, true);
+       add_skill(class, skill_1, 1, 50, false, 0);
+       add_skill(class, skill_2, 1, 34, false, 1);
+   }
 
+
+   /*
+    * A simple linear tree for a elementalist class
+    *
+    * starting skill: stone shards
+    *  - active: deals 3 damage.
+    * stone shards -> Lightning arc
+    *  - active: deals 12 damage.
+    * lightning arc -> dragon's tooth
+    *  - active: deals 25 damage.
+    */
+    else if (!strncmp(temp_name, "elementalist", MAX_NAME_LEN)) {
+       class_allocate_skills(class, 3, 3, 0);
+       sid_t skill_id = class->skilltree->tid * 100;
+      
+       /* Currently point to null effects */
+       /* Skills */
+       skill_t* skill_0 = skill_new(skill_id++, ACTIVE, "stone shards",
+                                    "A hail of stone shards!", 1, 100,
+                                    NULL);                         
+       skill_t* skill_1 = skill_new(skill_id++, ACTIVE, "arc lightning",
+                                    "A lightning arc is casted at your enemy!", 1, 200,
+                                    NULL);
+       skill_t* skill_2 = skill_new(skill_id++, ACTIVE, "dragon's tooth",
+                                    "An explosive tooth of a Dragon is used on your enemy.", 1, 400,      
+                                    NULL);
+ 
+       /* Add skills to tree */
+       add_skill(class, skill_0, 0, 25, true);
+       add_skill(class, skill_1, 1, 50, false, 0);
+       add_skill(class, skill_2, 1, 34, false, 1);
+   }
+
+   /*
+    * A simple linear tree for a Knight class
+    *
+    * starting skill: holy strike
+    *  - active: deals 3 damage.
+    * holy strike -> shield strike
+    *  - active: deals 12 damage.
+    * shield strike -> shackle strike
+    *  - active: deals 25 damage.
+    */
+    else if (!strncmp(temp_name, "knight", MAX_NAME_LEN)) {
+        class_allocate_skills(class, 3, 3, 0);
+       sid_t skill_id = class->skilltree->tid * 100;
+      
+       /* Currently point to null effects */
+       /* Skills */
+       skill_t* skill_0 = skill_new(skill_id++, ACTIVE, "holy strike",
+                                    "The knight delivers a holy strike!", 1, 100,
+                                    NULL);                         
+       skill_t* skill_1 = skill_new(skill_id++, ACTIVE, "shield strike",
+                                    "Strikes enemy with shield!", 1, 200,
+                                    NULL);
+       skill_t* skill_2 = skill_new(skill_id++, ACTIVE, "shackle strike",
+                                    "Strikes enemy with his shackle", 1, 400,      
+                                    NULL);
+ 
+       /* Add skills to tree */
+       add_skill(class, skill_0, 0, 25, true);
+       add_skill(class, skill_1, 1, 50, false, 0);
+       add_skill(class, skill_2, 1, 34, false, 1);
+   }
     
     else {
         fprintf(stderr, "Could not find class for skill inventories "
